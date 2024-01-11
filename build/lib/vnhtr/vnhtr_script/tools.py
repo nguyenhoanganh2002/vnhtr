@@ -5,7 +5,6 @@ import os
 import tempfile
 from PIL import Image, ImageOps
 import gdown
-from transformers import AutoTokenizer, TrOCRProcessor
 
 class Tokenizer():
     def __init__(self):
@@ -63,6 +62,7 @@ class VGGTransformer():
         self.tkz = Tokenizer()
         self.encoder = torch.jit.load(encoder_path, map_location=device)#.to(device)
         self.decoder = torch.jit.load(decoder_path, map_location=device)#.to(device)
+        print("Loaded weights")
         self.encoder.eval()
         self.decoder.eval()
         self.device = device
@@ -123,6 +123,7 @@ class VGGTransformer():
                 translated_sentence = np.asarray(translated_sentence).T
     
     def predict(self, imgs, max_seq_length=128, sos_token=1, eos_token=2):
+        print("Preprocessing ...")
         max_W = 0
         ims = []
         for img in imgs:
@@ -132,6 +133,7 @@ class VGGTransformer():
                 max_W = W
         imgs = torch.FloatTensor(np.array(ims))[:,:,:,:max_W]
 
+        print("Predicting ...")
         with torch.no_grad():
             with torch.jit.optimized_execution(True):
                 mem = self.encoder(imgs.to(self.device))
@@ -177,89 +179,3 @@ class VGGTransformer():
         img = np.asarray(img).transpose(2,0, 1)
         img = img/255
         return img, new_w
-    
-class TrOCR:
-    def __init__(self, device="cuda:0"):
-        encoder_path, decoder_path = self.download_weights()
-        self.tokenizer = AutoTokenizer.from_pretrained("vinai/bartpho-syllable-base")
-        self.processor = TrOCRProcessor.from_pretrained("microsoft/trocr-small-handwritten")
-        self.encoder = torch.jit.load(encoder_path, map_location=device)#.to(device)
-        self.decoder = torch.jit.load(decoder_path, map_location=device)#.to(device)
-        self.encoder.eval()
-        self.decoder.eval()
-        self.device = device
-        self.warmup()
-
-    def download_weights(self):
-        encoder_path = os.path.join(tempfile.gettempdir(), "tra_encoder.pt")
-        decoder_path = os.path.join(tempfile.gettempdir(), "tra_decoder.pt")
-        if os.path.exists(encoder_path):
-            print(f'VGG Transformer with Rethinking Head encoder weights {encoder_path} exsits. Ignore download!')
-        else:
-            print(f'Downloading VGG Transformer with Rethinking Head encoder weights {encoder_path} ...')
-            gdown.download(id="179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ", output=encoder_path, quiet=True)
-            if not os.path.exists(encoder_path):
-                print("Retrying ...")
-                if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ?alt=media -o {encoder_path}'):
-                    raise RuntimeError('Download encoder failed!')
-            
-        if os.path.exists(decoder_path):
-            print(f'VGG Transformer with Rethinking Head decoder weights {decoder_path} exsits. Ignore download!')
-        else:
-            print(f'Downloading VGG Transformer with Rethinking Head decoder weights {decoder_path} ...')
-            
-            gdown.download(id="1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q", output=decoder_path, quiet=True)
-            if not os.path.exists(decoder_path):
-                print("Retrying ...")
-                if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q?alt=media -o {decoder_path}'):
-                    raise RuntimeError('Download decoder failed!')
-        return encoder_path, decoder_path
-
-    def warmup(self):
-        print("Warming up ...")
-        img = torch.randint(0, 256, (2,3,512,1024))
-        pixel_values = self.processor(img, return_tensors="pt").pixel_values.to(self.device)
-        with torch.no_grad():
-            with torch.jit.optimized_execution(True):
-                encoder_output = self.encoder(pixel_values)
-    
-                start_ids = torch.LongTensor([[0]]*pixel_values.shape[0]).to(self.device)
-
-                max_length = 0
-
-                while max_length <= 35 and not all(start_ids[:, -1] == 2):
-                    output = self.decoder(start_ids, encoder_output)
-                    output = F.softmax(output[:,-1,:], dim=-1)
-
-                    start_ids = torch.cat([start_ids, output.argmax(dim=-1).unsqueeze(1)], dim=-1)
-
-                    max_length += 1
-    
-    def predict(self, imgs, max_seq_length=35, sos_token=0, eos_token=2):
-        pixel_values = []
-        for img in imgs:
-            im = self.processor(img, return_tensors="pt").pixel_values
-            pixel_values.append(im)
-        pixel_values = torch.FloatTensor(np.array(pixel_values))
-        with torch.no_grad():
-            with torch.jit.optimized_execution(True):
-                encoder_output = self.encoder(pixel_values.to(self.device))
-    
-                start_ids = torch.LongTensor([[sos_token]]*pixel_values.shape[0]).to(self.device)
-
-                max_length = 0
-
-                while max_length <= max_seq_length and not all(start_ids[:, -1] == eos_token):
-                    output = self.decoder(start_ids, encoder_output, self.gen_nopeek_mask(start_ids.shape[1]).to(self.device))
-                    output = F.softmax(output[:,-1,:], dim=-1)
-
-                    start_ids = torch.cat([start_ids, output.argmax(dim=-1).unsqueeze(1)], dim=-1)
-
-                    max_length += 1
-            
-            return self.tokenizer.batch_decode(start_ids, skip_special_tokens=True)
-    
-    def gen_nopeek_mask(self, length):
-        mask = (torch.triu(torch.ones(length, length)) == 1).transpose(0, 1)
-        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
-        return mask

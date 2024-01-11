@@ -14,7 +14,8 @@ setuptools.setup(
     url="https://github.com/nguyenhoanganh2002/vnhtr",
     packages=setuptools.find_packages(),
     install_requires=[
-        'pillow'
+        'pillow',
+        'transformers==4.35.0'
     ],
     keywords=['ocr', 'vnocr', 'htr', 'vnhtr'],
     classifiers=[
