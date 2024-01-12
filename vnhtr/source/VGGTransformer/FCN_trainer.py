@@ -42,8 +42,8 @@ if __name__ == '__main__':
     best_cer = 1
 
     # wandb init
-    # wandb.login(key = '9d97bfb2299059fecbd3e48dd349fafce5906d76')
-    wandb.login(key = 'e0e0a2547f255a36f551d7b6a166b84e5139d276')
+    # wandb.login(key = '')
+    wandb.login(key = '')
     wandb.init(
       project="VN_HTR",
       name=f"fcn_transformers_augmented_data",

@@ -44,7 +44,7 @@ if __name__ == '__main__':
     best_cer = 1
 
     #wandb init
-    # wandb.login(key = 'e0e0a2547f255a36f551d7b6a166b84e5139d276')
+    # wandb.login(key = '')
     # wandb.init(
     #   project="VN_HTR",
     #   name=f"1M_GC_transformers",
