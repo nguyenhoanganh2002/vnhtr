@@ -75,7 +75,7 @@ class VGGTransformer():
             print(f'VGG Transformer with Rethinking Head encoder weights {encoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading VGG Transformer with Rethinking Head encoder weights {encoder_path} ...')
-            if not os.system(f'wget -O {encoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/vta_encoder.pt?raw=true'):
+            if os.system(f'wget -O {encoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/vta_encoder.pt?raw=true'):
                 raise RuntimeError('Download encoder failed!')
             # gdown.download(id="179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ", output=encoder_path, quiet=True)
             # if not os.path.exists(encoder_path):
@@ -87,7 +87,7 @@ class VGGTransformer():
             print(f'VGG Transformer with Rethinking Head decoder weights {decoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading VGG Transformer with Rethinking Head decoder weights {decoder_path} ...')
-            if not os.system(f'wget -O {decoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/vta_decoder.pt?raw=true'):
+            if os.system(f'wget -O {decoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/vta_decoder.pt?raw=true'):
                 raise RuntimeError('Download decoder failed!')
             # gdown.download(id="1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q", output=decoder_path, quiet=True)
             # if not os.path.exists(decoder_path):
@@ -200,7 +200,7 @@ class TrOCR:
             print(f'TrOCR with Rethinking Head encoder weights {encoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading TrOCR with Rethinking Head encoder weights {encoder_path} ...')
-            if not os.system(f'wget -O {encoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/tra_encoder.pt?raw=true'):
+            if os.system(f'wget -O {encoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/tra_encoder.pt?raw=true'):
                 raise RuntimeError('Download encoder failed!')
             # gdown.download(id="1HnFESJHpvefkeqEovMZrOBgkYSRw2owK", output=encoder_path, quiet=True)
             # if not os.path.exists(encoder_path):
@@ -212,7 +212,7 @@ class TrOCR:
             print(f'TrOCR with Rethinking Head decoder weights {decoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading TrOCR with Rethinking Head decoder weights {decoder_path} ...')
-            if not os.system(f'wget -O {decoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/tra_decoder.pt?raw=true'):
+            if os.system(f'wget -O {decoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/tra_decoder.pt?raw=true'):
                 raise RuntimeError('Download decoder failed!')
             # gdown.download(id="1E4hbRQoqQjLHueMaV3qsxI7rUI0uPgmJ", output=decoder_path, quiet=True)
             # if not os.path.exists(decoder_path):
@@ -234,7 +234,7 @@ class TrOCR:
                 max_length = 0
 
                 while max_length <= 35 and not all(start_ids[:, -1] == 2):
-                    output = self.decoder(start_ids, encoder_output)
+                    output = self.decoder(start_ids, encoder_output, self.gen_nopeek_mask(start_ids.shape[1]).to(self.device))
                     output = F.softmax(output[:,-1,:], dim=-1)
 
                     start_ids = torch.cat([start_ids, output.argmax(dim=-1).unsqueeze(1)], dim=-1)
@@ -244,9 +244,9 @@ class TrOCR:
     def predict(self, imgs, max_seq_length=35, sos_token=0, eos_token=2):
         pixel_values = []
         for img in imgs:
-            im = self.processor(img, return_tensors="pt").pixel_values
+            im = self.processor(img).pixel_values
             pixel_values.append(im)
-        pixel_values = torch.FloatTensor(np.array(pixel_values))
+        pixel_values = torch.FloatTensor(np.array(pixel_values)).squeeze(1)
         with torch.no_grad():
             with torch.jit.optimized_execution(True):
                 encoder_output = self.encoder(pixel_values.to(self.device))

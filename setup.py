@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="vnhtr",
-    version="0.1.1",
+    version="0.1.5",
     author="nguyenhoanganh2002",
     author_email="anh.nh204511@gmail.com",
     description="Encoder-Decoder base for Vietnamese handwriting recognition",
@@ -15,7 +15,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'pillow',
-        'transformers==4.35.0'
+        'transformers==4.35.0',
+        'sentencepiece==0.1.99'
     ],
     keywords=['ocr', 'vnocr', 'htr', 'vnhtr'],
     classifiers=[
