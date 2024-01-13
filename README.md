@@ -57,3 +57,13 @@ tr_adapter = AdapterVNTrOCR(trocr_cf)
 ```
 
 For access to the full dataset and pretrained weights, please contact: [anh.nh204511@gmail.com](mailto:anh.nh204511@gmail.com)
+
+## Experimental Results
+| Model                       | CER   | Δ(CER) | WER   | Δ(WER) | Inference time (ms) | Δ(normalized) |
+|-----------------------------|-------|--------|-------|--------|----------------------|---------------|
+| VGG Transformer             | 17.1  |        | 33.03 |        | 211.5                |               |
+| VGG Transformer + Rethinking Head | 13.25 | +3.85  | 27.9  | +5.13  | 227.4                | +0.075        |
+| TrOCR                       | 8.2   |        | 19.25 |        | 104.6                |               |
+| TrOCR + Rethinking Head     | 7.87  | +0.33  | 18.32 | +0.93  | 113.2                | +0.082        |
+
+
