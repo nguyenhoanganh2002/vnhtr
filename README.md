@@ -15,30 +15,38 @@ pip install vnhtr
 ```python
 from vnhtr import vnhtr-script
 ```
-### Fully implemented:
+### Fully implemented
 ```bash
 git clone https://github.com/nguyenhoanganh2002/vnhtr
 cd ./vnhtr/vnhtr/source
 pip install -r requirements.txt
 ```
-Pretrain/Fintune VGG Transformer/TrOCR (pretraining on a large dataset and then finetuning on a wild dataset) 
+* Pretrain/Fintune VGG Transformer/TrOCR (pretraining on a large dataset and then finetuning on a wild dataset) 
 ```bash
 python VGGTransformer/train.py
 python VisionEncoderDecoder/train.py
 ```
-Pretrain VGG Transformer/TrOCR with Rethinking Head (large dataset)
+* Pretrain VGG Transformer/TrOCR with Rethinking Head (large dataset)
 ```bash
 python VGGTransformer/adapter_trainer.py
 python VisionEncoderDecoder/adapter_trainer.py
 ```
-Finetune VGG Transformer with Rethinking Head (wild dataset)
+* Finetune VGG Transformer with Rethinking Head (wild dataset)
 ```bash
 python VGGTransformer/finetune.py
 python VisionEncoderDecoder/finetune.py
 ```
-Access the model without going through the training or finetuning phases.
+* Access the model without going through the training or finetuning phases.
 ```python
+from VGGTransformer.config import config as vggtransformer_cf
+from VGGTransformer.models import VGGTransformer, AdapterVGGTransformer
+from VisionEncoderDecoder.config import config as trocr_cf
+from VisionEncoderDecoder.model import VNTrOCR, AdapterVNTrOCR
 
+vt_base = VGGTransformer(vggtransformer_cf)
+vt_adapter = AdapterVGGTransformer(vggtransformer_cf)
+tr_base = VNTrOCR(trocr_cf)
+tr_adapter = AdapterVNTrOCR(trocr_cf)
 ```
 
 For access to the full dataset, please contact: [anh.nh204511@gmail.com](mailto:anh.nh204511@gmail.com)
