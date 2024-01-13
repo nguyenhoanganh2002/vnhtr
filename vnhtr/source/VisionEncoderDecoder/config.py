@@ -4,7 +4,7 @@ from vietocr.tool.config import Cfg
 import torch
 
 # device = torch.device("cuda")
-device="cuda:3"
+device="cpu"
 
 @dataclass
 class Config:

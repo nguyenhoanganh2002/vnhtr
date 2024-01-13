@@ -8,7 +8,7 @@ import torch
 
 class VNTrOCR(nn.Module):
     def __init__(self):
-        super().__init__()
+        super().__init__(config=None)
         self.ViTEncoder = VisionEncoderDecoderModel.from_pretrained("microsoft/trocr-small-handwritten").encoder
         self.adaptive_layer = nn.Linear(384, 768)
         bartpho = MBartForConditionalGeneration.from_pretrained("vinai/bartpho-syllable-base")

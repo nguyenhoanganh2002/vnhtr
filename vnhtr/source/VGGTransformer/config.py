@@ -3,7 +3,7 @@ from vietocr.tool.predictor import Predictor
 from vietocr.tool.config import Cfg
 import torch
 
-device = torch.device("cuda:3")
+device = torch.device("cpu")
 
 @dataclass
 class Config:

@@ -12,9 +12,13 @@ import numpy as np
 from torch.nn import functional as F
 
 class OCRModel():
-    def __init__(self, device="cuda:2"):
-        self.encoder = torch.jit.load("vnhtr/weights/vta_encoder.pt", map_location=device)#.to(device)
-        self.decoder = torch.jit.load("vnhtr/weights/vta_decoder.pt", map_location=device)#.to(device)
+    def __init__(self, adapter=False, device="cuda:2"):
+        if adapter:
+            self.encoder = torch.jit.load("vnhtr/weights/vta_encoder.pt", map_location=device)#.to(device)
+            self.decoder = torch.jit.load("vnhtr/weights/vta_decoder.pt", map_location=device)#.to(device)
+        else:
+            self.encoder = torch.jit.load("vnhtr/weights/vt_encoder.pt", map_location=device)#.to(device)
+            self.decoder = torch.jit.load("vnhtr/weights/vt_decoder.pt", map_location=device)#.to(device)
         print("loaded model")
         self.encoder.eval()
         self.decoder.eval()
@@ -48,6 +52,43 @@ class OCRModel():
                 translated_sentence = np.asarray(translated_sentence).T
             
                 return translated_sentence
+    
+    def predict_topk(self, img, max_seq_length=128, sos_token=1, eos_token=2):
+        conflict=[]
+        with torch.no_grad():
+            mem = self.encoder(img.to(self.device))
+            translated_sentence = [[sos_token]*len(img)]
+
+            probs = []
+            tokens = []
+
+            max_length = 0
+
+            while max_length <= max_seq_length and not all(np.any(np.asarray(translated_sentence).T==eos_token, axis=1)):
+
+                tgt_inp = torch.LongTensor(translated_sentence).to(self.device)
+                
+                output = self.decoder(tgt_inp, mem, self.gen_nopeek_mask(tgt_inp.shape[0]).to(self.device))
+                output = F.softmax(output, dim=-1)
+                output = output.to('cpu')
+
+                values, indices  = torch.topk(output, 233)
+
+                probs.append(values[0, -1].cpu().numpy())
+                tokens.append(indices[0, -1].cpu().numpy())
+            
+                indices = indices[:, -1, 0]
+                indices = indices.tolist()
+
+                translated_sentence.append(indices)   
+                max_length += 1
+
+                conflict.append(output[:,-1,:].cpu().numpy())
+
+                del output
+
+            translated_sentence = np.asarray(translated_sentence).T
+        return translated_sentence, np.array(tokens).T, np.array(probs).T, np.array(conflict)
     
     def gen_nopeek_mask(self, length):
         mask = (torch.triu(torch.ones(length, length)) == 1).transpose(0, 1)

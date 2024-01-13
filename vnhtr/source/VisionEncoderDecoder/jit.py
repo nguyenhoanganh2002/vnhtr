@@ -1,19 +1,24 @@
-from model import *
-from utils import *
-from dataset import *
-from torch.utils.data import DataLoader
-import pandas as pd
-from tqdm import tqdm
-from evaluate import load
-from config import config
+# from model import *
+# from utils import *
+# from dataset import *
+# from torch.utils.data import DataLoader
+# import pandas as pd
+# from tqdm import tqdm
+# from evaluate import load
+# from config import config
+import numpy as np
 import torch.nn as nn
 from torch.nn import functional as F
 import torch
 
 class TrOCR():
-    def __init__(self, device="cuda:2"):
-        self.encoder = torch.jit.load("vnhtr/weights/tr_encoder.pt", map_location=device)
-        self.decoder = torch.jit.load("vnhtr/weights/tr_decoder.pt", map_location=device)
+    def __init__(self, adapter=False, device="cuda:2"):
+        if adapter:
+            self.encoder = torch.jit.load("vnhtr/weights/tra_encoder.pt", map_location=device)
+            self.decoder = torch.jit.load("vnhtr/weights/tra_decoder.pt", map_location=device)
+        else:
+            self.encoder = torch.jit.load("vnhtr/weights/tr_encoder.pt", map_location=device)
+            self.decoder = torch.jit.load("vnhtr/weights/tr_decoder.pt", map_location=device)
         self.encoder.eval()
         self.decoder.eval()
         self.device = device
@@ -37,6 +42,36 @@ class TrOCR():
             
             return start_ids
     
+    def predict_topk(self, pixel_values, max_seq_length=35, sos_token=0, eos_token=2):
+        "data: BxCXHxW"
+        conflict = []
+        with torch.no_grad():
+            encoder_output = self.encoder(pixel_values.to(self.device))
+    
+            start_ids = torch.LongTensor([[sos_token]]*pixel_values.shape[0]).to(self.device)
+
+            max_length = 0
+
+            probs = []
+            tokens = []
+
+            while max_length <= max_seq_length and not all(start_ids[:, -1] == eos_token):
+                output = self.decoder(start_ids, encoder_output, self.gen_nopeek_mask(start_ids.shape[1]).to(self.device))
+                output = F.softmax(output[:,-1,:], dim=-1)
+
+                start_ids = torch.cat([start_ids, output.argmax(dim=-1).unsqueeze(1)], dim=-1)
+
+                _prob, _token = output.topk(k=501, dim=-1)
+                # print(_prob.shape)
+                probs.append(_prob[0].cpu().numpy())
+                tokens.append(_token[0].cpu().numpy())
+
+                max_length += 1
+
+                # conflict.append(output[:,].cpu().numpy())
+        
+        return start_ids, np.array(tokens), np.array(probs), np.array(probs)
+    
     def gen_nopeek_mask(self, length):
         mask = (torch.triu(torch.ones(length, length)) == 1).transpose(0, 1)
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
@@ -45,8 +80,8 @@ class TrOCR():
 class ViT(nn.Module):
     def __init__(self, model):
         super().__init__()
-        self.vit = model.ViTEncoder
-        self.adaptive_layer = model.adaptive_layer
+        self.vit = model.basemodel.ViTEncoder
+        self.adaptive_layer = model.basemodel.adaptive_layer
 
     def forward(self, pixel_values):
         encoder_output = self.vit(pixel_values)[0] # B, src_len, 384
@@ -56,15 +91,17 @@ class ViT(nn.Module):
 class TrocrDecoder(nn.Module):
     def __init__(self, model):
         super().__init__()
-        self.BartDecoder = model.BartDecoder
-        self.fc = model.fc_out
-        # self.rethinking = model.rethinking
+        self.BartDecoder = model.basemodel.BartDecoder
+        self.fc = model.basemodel.fc_out
+        self.rethinking = model.rethinking
+        # self.BartDecoder = model.BartDecoder
+        # self.fc = model.fc_out
 
     def forward(self, prev_ids, encoder_output, mask):
         decoder_output = self.BartDecoder(input_ids=prev_ids,
                                           encoder_hidden_states=encoder_output) # B, tgt_len, 768
         logits = self.fc(decoder_output[0]) # B, tgt_len, vocab_size
-        # logits = logits + self.rethinking(logits, mask)
+        logits = logits + self.rethinking(logits, mask)
         return logits
     
 def gen_nopeek_mask(length):
@@ -72,11 +109,13 @@ def gen_nopeek_mask(length):
     mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
     return mask
 
-device = 'cuda:3'
+device = 'cuda:0'
 
 if __name__ == "__main__":
-    model = VNTrOCR()
-    model.load_state_dict(torch.load("/mnt/disk4/VN_HTR/VN_HTR/VisionEncoderDecoder/weights/cp_finetune_v2_5.pt", map_location=device))
+    # model = VNTrOCR()
+    # model.load_state_dict(torch.load("/mnt/disk4/VN_HTR/VN_HTR/VisionEncoderDecoder/weights/cp_finetune_v2_5.pt", map_location=device))
+    model = AdapterVNTrOCR(config)
+    model.load_state_dict(torch.load("/mnt/disk4/VN_HTR/VN_HTR/VisionEncoderDecoder/weights/cp_add_finetune_v2.pt", map_location=device))
     model.to(device)
 
     anot = pd.read_csv("test_anot.csv").sample(frac=1, random_state=0).reset_index(drop=True)
@@ -91,7 +130,7 @@ if __name__ == "__main__":
         encoder = ViT(model)
         encoder.eval()
         trace_encoder = torch.jit.trace(encoder, pixel_values)
-        trace_encoder.save("/mnt/disk4/VN_HTR/VN_HTR/vnhtr/weights/tr_encoder.pt")
+        trace_encoder.save("/mnt/disk4/VN_HTR/VN_HTR/vnhtr/weights/tra_encoder.pt")
         memory = encoder(pixel_values)#.transpose(1, 0)
         # print(memory.shape)
         # print(in_tokens[:, :5].shape)
@@ -99,6 +138,6 @@ if __name__ == "__main__":
         decoder = TrocrDecoder(model)
         decoder.eval()
         trace_decoder = torch.jit.trace(decoder, (input_ids[:,:2], memory, gen_nopeek_mask(input_ids[:,:2].shape[1]).to(device)))
-        trace_decoder.save("/mnt/disk4/VN_HTR/VN_HTR/vnhtr/weights/tr_decoder.pt")
+        trace_decoder.save("/mnt/disk4/VN_HTR/VN_HTR/vnhtr/weights/tra_decoder.pt")
         
         break
