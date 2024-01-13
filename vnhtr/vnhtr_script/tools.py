@@ -75,22 +75,25 @@ class VGGTransformer():
             print(f'VGG Transformer with Rethinking Head encoder weights {encoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading VGG Transformer with Rethinking Head encoder weights {encoder_path} ...')
-            gdown.download(id="179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ", output=encoder_path, quiet=True)
-            if not os.path.exists(encoder_path):
-                print("Retrying ...")
-                if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ?alt=media -o {encoder_path}'):
-                    raise RuntimeError('Download encoder failed!')
+            if not os.system(f'wget -O {encoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/vta_encoder.pt?raw=true'):
+                raise RuntimeError('Download encoder failed!')
+            # gdown.download(id="179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ", output=encoder_path, quiet=True)
+            # if not os.path.exists(encoder_path):
+            #     print("Retrying ...")
+            #     if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/179BRTjPBMQn5vd9Ah6DIklcox30zh4YQ?alt=media -o {encoder_path}'):
+            #         raise RuntimeError('Download encoder failed!')
             
         if os.path.exists(decoder_path):
             print(f'VGG Transformer with Rethinking Head decoder weights {decoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading VGG Transformer with Rethinking Head decoder weights {decoder_path} ...')
-            
-            gdown.download(id="1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q", output=decoder_path, quiet=True)
-            if not os.path.exists(decoder_path):
-                print("Retrying ...")
-                if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q?alt=media -o {decoder_path}'):
-                    raise RuntimeError('Download decoder failed!')
+            if not os.system(f'wget -O {decoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/vta_decoder.pt?raw=true'):
+                raise RuntimeError('Download decoder failed!')
+            # gdown.download(id="1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q", output=decoder_path, quiet=True)
+            # if not os.path.exists(decoder_path):
+            #     print("Retrying ...")
+            #     if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1dNJrjBF-FcjQgzckr4CKJyFdaLRuse6q?alt=media -o {decoder_path}'):
+            #         raise RuntimeError('Download decoder failed!')
         return encoder_path, decoder_path
 
     def warmup(self):
@@ -197,21 +200,25 @@ class TrOCR:
             print(f'TrOCR with Rethinking Head encoder weights {encoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading TrOCR with Rethinking Head encoder weights {encoder_path} ...')
-            gdown.download(id="1HnFESJHpvefkeqEovMZrOBgkYSRw2owK", output=encoder_path, quiet=True)
-            if not os.path.exists(encoder_path):
-                print("Retrying ...")
-                if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1HnFESJHpvefkeqEovMZrOBgkYSRw2owK?alt=media -o {encoder_path}'):
-                    raise RuntimeError('Download encoder failed!')
+            if not os.system(f'wget -O {encoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/tra_encoder.pt?raw=true'):
+                raise RuntimeError('Download encoder failed!')
+            # gdown.download(id="1HnFESJHpvefkeqEovMZrOBgkYSRw2owK", output=encoder_path, quiet=True)
+            # if not os.path.exists(encoder_path):
+            #     print("Retrying ...")
+            #     if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1HnFESJHpvefkeqEovMZrOBgkYSRw2owK?alt=media -o {encoder_path}'):
+            #         raise RuntimeError('Download encoder failed!')
             
         if os.path.exists(decoder_path):
             print(f'TrOCR with Rethinking Head decoder weights {decoder_path} exsits. Ignore download!')
         else:
             print(f'Downloading TrOCR with Rethinking Head decoder weights {decoder_path} ...')
-            gdown.download(id="1E4hbRQoqQjLHueMaV3qsxI7rUI0uPgmJ", output=decoder_path, quiet=True)
-            if not os.path.exists(decoder_path):
-                print("Retrying ...")
-                if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1E4hbRQoqQjLHueMaV3qsxI7rUI0uPgmJ?alt=media -o {decoder_path}'):
-                    raise RuntimeError('Download decoder failed!')
+            if not os.system(f'wget -O {decoder_path} https://github.com/nguyenhoanganh2002/vnhtr_weights/blob/main/tra_decoder.pt?raw=true'):
+                raise RuntimeError('Download decoder failed!')
+            # gdown.download(id="1E4hbRQoqQjLHueMaV3qsxI7rUI0uPgmJ", output=decoder_path, quiet=True)
+            # if not os.path.exists(decoder_path):
+            #     print("Retrying ...")
+            #     if os.system(f'curl -H "Authorization: Bearer ya29.a0AfB_byDhvrZegVfgDHMqnSXRhp763RCQjw7HhwBR-eN3DCTmx-Q6SlsXpd5QagdhICn2zy5Dpp8SVYRWiDuwhH-IemClyvaElQFiOQBYSL7Hxy_ddAEEv6HbuxbzcKKtvRnaXpvSOIJ8ui8g1O93iY0tFHO7hFLGfy9PaCgYKAYASARMSFQHGX2MiAwlU1xpS3ZceA0-121l89w0171" https://www.googleapis.com/drive/v3/files/1E4hbRQoqQjLHueMaV3qsxI7rUI0uPgmJ?alt=media -o {decoder_path}'):
+            #         raise RuntimeError('Download decoder failed!')
         return encoder_path, decoder_path
 
     def warmup(self):

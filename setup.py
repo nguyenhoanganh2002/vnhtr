@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="vnhtr",
-    version="0.1.0",
+    version="0.1.1",
     author="nguyenhoanganh2002",
     author_email="anh.nh204511@gmail.com",
     description="Encoder-Decoder base for Vietnamese handwriting recognition",
