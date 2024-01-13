@@ -40,21 +40,21 @@ def process_folder(path):
         f.close()
 
 if __name__ == "__main__":
-    # for folder in os.listdir("VNTC"):
-    #     process_folder("VNTC/" + folder)
+    for folder in os.listdir("VNTC"):
+        process_folder("VNTC/" + folder)
 
-    res = []
-    f = open("corpus-title.txt", 'r', encoding='utf-8')
-    content = f.read()
-    f.close()
-    ignore_char = ['!', '"', '%', '&', '(', ')', '*', ',', '-', '.', '/', ':', ';', '?']
-    for char in ignore_char:
-        content = content.replace(char, ' ')
-    sentences = content.split()
-    try:
-        res += rand_parts(sentences, round(len(sentences) / 8))
-    except:
-        pass
-    with open("sentences.txt", 'a', encoding='utf-16') as f:
-        f.write("\n".join(res) + "\n")
-        f.close()
+    # res = []
+    # f = open("corpus-title.txt", 'r', encoding='utf-8')
+    # content = f.read()
+    # f.close()
+    # ignore_char = ['!', '"', '%', '&', '(', ')', '*', ',', '-', '.', '/', ':', ';', '?']
+    # for char in ignore_char:
+    #     content = content.replace(char, ' ')
+    # sentences = content.split()
+    # try:
+    #     res += rand_parts(sentences, round(len(sentences) / 8))
+    # except:
+    #     pass
+    # with open("sentences.txt", 'a', encoding='utf-16') as f:
+    #     f.write("\n".join(res) + "\n")
+    #     f.close()

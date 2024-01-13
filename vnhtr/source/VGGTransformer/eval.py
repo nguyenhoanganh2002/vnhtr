@@ -35,7 +35,7 @@ if __name__ == '__main__':
     cer = load("cer")
     wer = load("wer")
     cer_score = 0
-    wer_score = -0.1
+    wer_score = 0
     tkz = Tokenizer(config)
 
     print("Starting ....")

@@ -16,8 +16,6 @@ if __name__ == '__main__':
     torch.autograd.set_detect_anomaly(True)
     model = VNTrOCR()
     model.load_state_dict(torch.load("VisionEncoderDecoder/weights/cp_vision_encoder_decoder_augmented_data.pt", map_location=device))
-    # model = AdapterVNTrOCR(config)
-    # model.load_state_dict(torch.load("VisionEncoderDecoder/weights/cp_adapter_add_v2.pt", map_location=device))
     model.to(device)
 
     #data loader

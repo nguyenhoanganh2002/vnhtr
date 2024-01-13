@@ -45,17 +45,17 @@ if __name__ == '__main__':
 
     # wandb init
     # wandb.login(key = '')
-    wandb.login(key = '')
-    wandb.init(
-      project="VNHTR",
-      name=f"adapter-vgg-transfomer",
-      config={
-          "learning_rate": 0.0001,
-          "architecture": "v_t",
-          "dataset": "gen",
-          "epochs": 10,
-      }
-    )
+    # wandb.login(key = '')
+    # wandb.init(
+    #   project="VNHTR",
+    #   name=f"adapter-vgg-transfomer",
+    #   config={
+    #       "learning_rate": 0.0001,
+    #       "architecture": "v_t",
+    #       "dataset": "gen",
+    #       "epochs": 10,
+    #   }
+    # )
 
     max_len = {1: 8, 2: 16, 3: 21, 4: 26, 5: 33, 6: 38, 7: 43, 8: 49, 9: 54, 10: 64, 11: 60, 12: 63, 13: 66, 14: 66, 15: 66, 16: 70, 17: 80, 18: 90, 19:108, 20: 106, 21: 114}
 
@@ -121,11 +121,11 @@ if __name__ == '__main__':
                         references += chars_true
 
                     cer_score = cer.compute(predictions=predictions, references=references, concatenate_texts=True)
-                    wandb.log({"train_loss": train_loss/len(trainloader), "cer": cer_score})
+                    # wandb.log({"train_loss": train_loss/len(trainloader), "cer": cer_score})
                     if cer_score < best_cer:
                         best_cer = cer_score
                         torch.save(model.state_dict(), "source/weights/cp_adapter_vgg_transformer.pt")
 
                     print(f'Character Error Rate: {cer_score}')
     
-    wandb.finish()
+    # wandb.finish()

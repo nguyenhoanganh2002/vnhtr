@@ -62,17 +62,17 @@ if __name__ == '__main__':
 
     # wandb init
     # wandb.login(key = '')
-    wandb.login(key = '')
-    wandb.init(
-      project="VN_HTR",
-      name=f"adapter_vision_encoder_decoder_add",
-      config={
-          "learning_rate": 0.0001,
-          "architecture": "v_t",
-          "dataset": "gen",
-          "epochs": 10,
-      }
-    )
+    # wandb.login(key = '')
+    # wandb.init(
+    #   project="VN_HTR",
+    #   name=f"adapter_vision_encoder_decoder_add",
+    #   config={
+    #       "learning_rate": 0.0001,
+    #       "architecture": "v_t",
+    #       "dataset": "gen",
+    #       "epochs": 10,
+    #   }
+    # )
 
     print(local_rank)
     print("Start .....")
@@ -140,7 +140,7 @@ if __name__ == '__main__':
                         cer_score = cer.compute(predictions=predictions, references=references, concatenate_texts=True)
                     except:
                         print("error when caculate cer score")
-                    wandb.log({"train_loss": train_loss/len(trainloader), "cer": cer_score})
+                    # wandb.log({"train_loss": train_loss/len(trainloader), "cer": cer_score})
                     if local_rank == 0:
                         torch.save(model.module.state_dict(), "/mnt/disk4/VN_HTR/VN_HTR/VisionEncoderDecoder/new_check_point/tmp.pt")
 
@@ -150,4 +150,4 @@ if __name__ == '__main__':
 
                     print(f'Character Error Rate: {cer_score}')
     
-    wandb.finish()
+    # wandb.finish()
