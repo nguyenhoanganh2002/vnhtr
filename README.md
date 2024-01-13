@@ -56,4 +56,4 @@ tr_base = VNTrOCR(trocr_cf)
 tr_adapter = AdapterVNTrOCR(trocr_cf)
 ```
 
-For access to the full dataset, please contact: [anh.nh204511@gmail.com](mailto:anh.nh204511@gmail.com)
+For access to the full dataset and pretrained weights, please contact: [anh.nh204511@gmail.com](mailto:anh.nh204511@gmail.com)
