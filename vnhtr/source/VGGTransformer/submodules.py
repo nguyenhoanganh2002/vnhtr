@@ -16,8 +16,8 @@ class Rethinking(nn.Module):
         super().__init__()
         self.n_embd = config.vocab_size
         self.block_size = config.max_seq_len
-        self.c_attn = nn.Linear(self.n_embd, self.n_embd*3, bias=config.bias)
-        self.c_proj = nn.Linear(self.n_embd, self.n_embd, bias=config.bias)
+        self.c_attn = nn.Linear(self.n_embd, config.rank*3, bias=config.bias)
+        self.c_proj = nn.Linear(config.rank, self.n_embd, bias=config.bias)
         self.attn_dropout = nn.Dropout(0)
         self.resid_dropout = nn.Dropout(0.1)
         self.gelu = nn.GELU()
