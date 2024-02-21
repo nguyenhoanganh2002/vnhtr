@@ -1,4 +1,4 @@
-# Vietnamese Handwriting Text Recognition (aka vnhtr package)
+# Vietnamese Handwriting Text Recognition (vnhtr package)
 
 This project deploys and improves two foundational models within [TrOCR](https://huggingface.co/docs/transformers/model_doc/trocr) and [VietOCR](https://github.com/pbcquoc/vietocr).
 
